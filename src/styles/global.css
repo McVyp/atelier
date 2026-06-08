@@ -1,0 +1,49 @@
+@import url("https://fonts.googleapis.com/css2?family=M+PLUS+2:wght@100..900&display=swap");
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-off-white: #f7f8f8;
+  --font-sans: "M PLUS 2", sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: "M PLUS 2", sans-serif;
+    font-size: 62.5%;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #0f0f0f;
+  }
+
+  html.dark body {
+    background-color: #000212;
+    color: var(--color-off-white);
+  }
+
+  a {
+    text-decoration: none;
+    text-underline-offset: 4px;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0 !important;
+    display: none;
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2.4rem;
+  }
+}

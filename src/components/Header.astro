@@ -1,0 +1,15 @@
+---
+import Link from './Link.astro';
+import ThemeToggle from './ThemeToggle.astro';
+---
+<header class="w-full">
+  <nav class="container flex justify-between items-center py-8">
+    <Link href="/" label="atelier" />
+    <ul class="flex items-center gap-4 list-none">
+        <li><ThemeToggle /></li>
+      <li><Link href="/blog" label="blog" /></li>
+      <li><Link href="/work" label="work" /></li>
+      <li><Link href="/about" label="about" /></li>
+    </ul>
+  </nav>
+</header>
