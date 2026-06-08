@@ -1,0 +1,16 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { posts } from '../../lib/data';
+
+const { slug } = Astro.params;
+
+const post = posts.find(p => p.slug === slug);
+
+if (!post) return Astro.redirect('/blog');
+---
+
+<Layout title={post.title}>
+  <h1>{post.title}</h1>
+  <span>{post.date}</span>
+  <p>{post.description}</p>
+</Layout>

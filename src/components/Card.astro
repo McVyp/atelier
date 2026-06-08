@@ -1,0 +1,30 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  date?: string;
+  slug?: string;
+  href?: string;
+  type?: 'post' | 'activity';
+}
+const { title, description, date, slug, href, type } = Astro.props;
+const url = slug ? `/blog/${slug}` : href ?? '#';
+---
+
+<a href={url} class={`block ${type === 'activity' ? 'pointer-events-none cursor-default' : ''}`}>
+  <div class="flex justify-between items-baseline p-4">
+    {type === 'post' || type === 'activity'
+      ? <div class="flex w-full px-4">
+          <h4 class="w-1/2 truncate">{title}</h4>
+          <span class="w-1/2 text-[1.4rem] truncate">{description}</span>
+        </div>
+      : <>
+          <div>
+            <h4>{title}</h4>
+            <p class="text-[1.4rem] line-clamp-1">{description}</p>
+          </div>
+          <span class="self-end">{date}</span>
+        </>
+    }
+  </div>
+</a>

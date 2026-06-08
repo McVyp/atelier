@@ -6,12 +6,13 @@ interface Props {
   external?: boolean;
 }
 const { href, label, icon, external = false } = Astro.props;
+const isActive = !external && Astro.url.pathname === href && href !== '/';
 ---
 <a 
   href={href}
   target={external ? '_blank' : undefined}
   rel={external ? 'noopener noreferrer' : undefined}
-    class="no-underline hover:underline dark:hover:decoration-white"
+  class={`hover:underline underline-offset-4 ${isActive ? 'underline' : 'no-underline'}`}
 >
   {icon ? <img src={icon} alt={label} /> : label}
 </a>

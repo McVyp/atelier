@@ -1,7 +1,26 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import Layout from "../../layouts/Layout.astro";
+import { getGithubStats } from "../../lib/github";
+
+const { contributions, followers, repos } = await getGithubStats();
 ---
 
 <Layout title="About">
-  <h1>About</h1>
+  <div>
+    <h1 class="mb-4">About</h1>
+    <p>
+  I'm a software engineer who likes to help.
+  I build with Astro, TypeScript, React, and MDX, and contribute
+  to open source — including a merged PR to the official Astro docs —
+  with <strong>{contributions}</strong> contributions on GitHub.
+</p>
+ <p>This site is one of those projects. Built with Astro, obviously.</p>
+<p >
+  Outside of code I'm learning French and German. Slowly, but consistently — 
+  which is also how I approach everything else.
+</p>
+<p>
+  I want to work on something that matters.
+</p>
+  </div>
 </Layout>
