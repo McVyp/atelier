@@ -11,9 +11,5 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-
-  adapter: cloudflare({
-    imageService: "passthrough",
-    sessionKVBindingName: undefined,
-  }),
+  adapter: cloudflare(),
 });
