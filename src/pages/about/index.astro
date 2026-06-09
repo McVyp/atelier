@@ -2,7 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import { getGithubStats } from "../../lib/github";
 
-const { contributions, followers, repos } = await getGithubStats();
+const { contributions} = await getGithubStats();
 ---
 
 <Layout title="About">

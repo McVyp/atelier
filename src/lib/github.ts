@@ -58,7 +58,5 @@ export async function getGithubStats() {
   return {
     contributions:
       user.contributionsCollection.contributionCalendar.totalContributions,
-    followers: user.followers.totalCount,
-    repos: user.publicRepos.totalCount,
   };
 }
