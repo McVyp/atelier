@@ -9,4 +9,4 @@ jobs:
         with:
           node-version: 22
       - run: npm install -g pnpm
-      - run: pnpm install
+      - run: pnpm install --ignore-scripts
