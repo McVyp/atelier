@@ -5,6 +5,7 @@
 
 @theme {
   --color-off-white: #f7f8f8;
+  --color-bg-dark: #000212;
   --font-sans: "M PLUS 2", sans-serif;
 }
 
@@ -20,7 +21,7 @@
   }
 
   html.dark body {
-    background-color: #000212;
+    background-color: var(--color-bg-dark);
     color: var(--color-off-white);
   }
 
@@ -46,12 +47,16 @@
     width: 0 !important;
     display: none;
   }
+
+  * {
+    scrollbar-width: none;
+  }
 }
 
 @layer components {
-  .container {
+  .layout-container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 120rem;
     margin: 0 auto;
     padding: 0 2.4rem;
   }

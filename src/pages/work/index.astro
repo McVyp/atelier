@@ -1,7 +1,26 @@
 ---
+import Card from '../../components/Card.astro';
 import Layout from '../../layouts/Layout.astro';
+import { getWork, type WorkItem } from '../../lib/notion';
+
+const work = await getWork();
+const experience = work.filter((item: WorkItem) => item.category === 'work-experience');
+const projects = work.filter((item: WorkItem) => item.category === 'project');
 ---
 
-<Layout title="Works">
-  <h1>Work</h1>
+<Layout title="work">
+  <h1 class="mb-4">work</h1>
+  <section class="mb-10">
+    <h4 class="text-zinc-500">current</h4>
+    {experience.map((item: WorkItem) => (
+      <Card {...item} type="work" />
+    ))}
+    
+  </section>
+  <section>
+    <h4 class="text-zinc-500">projects</h4>
+    {projects.map((item: WorkItem) => (
+      <Card {...item} />
+    ))}
+  </section>
 </Layout>

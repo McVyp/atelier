@@ -3,29 +3,33 @@ import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
 import { getGithubActivity } from '../lib/github';
 import { posts } from '../lib/data';
+import Link from '../components/Link.astro';
 
 const activityCards = await getGithubActivity();
 
-const feed = [...posts, ...activityCards].sort((a, b) =>
-  new Date(b.date).getTime() - new Date(a.date).getTime()
-);
+const feed = [...posts, ...activityCards]
+  .filter(item => !!item.date)
+  .sort((a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime());
 ---
 
-<Layout title="Atelier">
-  <h1 class="mb-4">Atelier</h1>
+<Layout title="home">
+  <h1 class="mb-4">atelier</h1>
   <p>Software engineer who likes to help. I build with Astro, TypeScript, and React.</p>
   <p>Currently learning French and German.</p>
+
+  <div class="text-[1.6rem]">
+  <Link href="/work" label="see work →" />
+  </div>
+  
 <section class="mt-10">
-  <h4>right now</h4>
+  <h4 class="text-zinc-500 mb-10">right now</h4>
   <div class="relative">
     <div class="max-h-[40vh] overflow-y-auto">
       {feed.map(item => (
         <Card {...item} />
       ))}
     </div>
-    <div class="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent dark:from-[#000212]"/>
+    <div class="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent dark:from-[var(--color-bg-dark)]"/>
   </div>
 </section>
-
-
 </Layout>
