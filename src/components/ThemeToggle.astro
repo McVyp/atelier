@@ -42,28 +42,32 @@
 </button>
 
 <script>
-  function initTheme() {
-    const btn = document.getElementById("theme-toggle");
-    const sun = document.getElementById("icon-sun");
-    const moon = document.getElementById("icon-moon");
+  function updateIcons(isDark: boolean) {
+    const sun = document.getElementById("icon-sun") as HTMLElement;
+    const moon = document.getElementById("icon-moon") as HTMLElement;
+    if (sun) sun.style.display = isDark ? "block" : "none";
+    if (moon) moon.style.display = isDark ? "none" : "block";
+  }
 
-    function updateIcons(isDark: boolean) {
-      (sun as HTMLElement).style.display = isDark ? "block" : "none";
-      (moon as HTMLElement).style.display = isDark ? "none" : "block";
-    }
-
+  function initIcons() {
     const saved = localStorage.getItem("theme");
     const isDark = saved
       ? saved === "dark"
       : window.matchMedia("(prefers-color-scheme: dark)").matches;
     updateIcons(isDark);
-
-    btn?.addEventListener("click", () => {
-      const dark = document.documentElement.classList.toggle("dark");
-      localStorage.setItem("theme", dark ? "dark" : "light");
-      updateIcons(dark);
-    });
   }
 
-  document.addEventListener("astro:page-load", initTheme);
+  function handleToggle() {
+    const dark = document.documentElement.classList.toggle("dark");
+    localStorage.setItem("theme", dark ? "dark" : "light");
+    updateIcons(dark);
+  }
+
+  document.addEventListener("astro:after-swap", initIcons);
+  document.addEventListener("astro:page-load", () => {
+    initIcons();
+    const btn = document.getElementById("theme-toggle");
+    btn?.removeEventListener("click", handleToggle);
+    btn?.addEventListener("click", handleToggle);
+  });
 </script>

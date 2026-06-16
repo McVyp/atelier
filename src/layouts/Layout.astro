@@ -19,14 +19,6 @@ const { title } = Astro.props;
     <link rel="icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
     <title>{title === "home" ? "atelier" : `atelier - ${title}`}</title>
-    <script is:inline>
-      const theme =
-        localStorage.getItem("theme") ??
-        (window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light");
-      document.documentElement.classList.toggle("dark", theme === "dark");
-    </script>
     <ClientRouter />
   </head>
   <body class="h-screen flex flex-col">
@@ -206,6 +198,19 @@ const { title } = Astro.props;
           .querySelectorAll(".listen-btn")
           .forEach((b) => b.classList.remove("is-playing"));
       });
+    </script>
+    <script is:inline>
+      function applyTheme() {
+        const theme =
+          localStorage.getItem("theme") ??
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        document.documentElement.classList.toggle("dark", theme === "dark");
+      }
+
+      applyTheme();
+      document.addEventListener("astro:after-swap", applyTheme);
     </script>
   </body>
 </html>
