@@ -73,3 +73,7 @@
 .listen-btn.is-playing svg polygon {
   display: none;
 }
+
+#global-player {
+  padding-bottom: env(safe-area-inset-bottom);
+}
