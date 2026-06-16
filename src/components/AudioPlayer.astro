@@ -1,0 +1,39 @@
+---
+interface Props {
+  src: string;
+  title: string;
+  image?: string;
+  class?: string;
+}
+const { src, title, image, class: className } = Astro.props;
+---
+
+<button
+  class={`listen-btn ${className || ""}`}
+  data-src={src}
+  data-title={title}
+  data-image={image}
+>
+  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+    <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1"
+    ></circle>
+    <polygon points="5,4 5,9 9.5,6.5" fill="currentColor"></polygon>
+  </svg>
+</button>
+
+<script>
+  function initButtons() {
+    document.querySelectorAll(".listen-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const { src, title, image } = (btn as HTMLElement).dataset;
+        window.dispatchEvent(
+          new CustomEvent("play-audio", {
+            detail: { src, title, image },
+          }),
+        );
+      });
+    });
+  }
+
+  document.addEventListener("astro:page-load", initButtons);
+</script>

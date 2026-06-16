@@ -1,4 +1,11 @@
-export async function getGithubActivity() {
+export async function getGithubActivity(kv?: KVNamespace) {
+  const cacheKey = "github:activity";
+
+  if (kv) {
+    const cached = await kv.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+  }
+
   const res = await fetch(
     `https://api.github.com/users/${import.meta.env.GITHUB_USERNAME}/events/public`,
     {
@@ -8,9 +15,10 @@ export async function getGithubActivity() {
       },
     },
   );
-  const events = await res.json();
 
-  return events
+  const events = (await res.json()) as any[];
+
+  const result = events
     .map((e: any) => ({
       title: e.repo.name,
       description:
@@ -28,9 +36,21 @@ export async function getGithubActivity() {
       type: "activity" as const,
     }))
     .filter((item: any) => item.description?.trim());
+
+  if (kv)
+    await kv.put(cacheKey, JSON.stringify(result), { expirationTtl: 3600 });
+
+  return result;
 }
 
-export async function getGithubStats() {
+export async function getGithubStats(kv?: KVNamespace) {
+  const cacheKey = "github:stats";
+
+  if (kv) {
+    const cached = await kv.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+  }
+
   const query = `{
     user(login: "${import.meta.env.GITHUB_USERNAME}") {
       contributionsCollection {
@@ -53,10 +73,16 @@ export async function getGithubStats() {
     body: JSON.stringify({ query }),
   });
 
-  const { data } = await res.json();
+  const { data } = (await res.json()) as any;
   const user = data.user;
-  return {
+
+  const result = {
     contributions:
       user.contributionsCollection.contributionCalendar.totalContributions,
   };
+
+  if (kv)
+    await kv.put(cacheKey, JSON.stringify(result), { expirationTtl: 3600 });
+
+  return result;
 }

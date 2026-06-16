@@ -1,26 +1,45 @@
 ---
+import AudioPlayer from "../../components/AudioPlayer.astro";
 import Layout from "../../layouts/Layout.astro";
 import { getGithubStats } from "../../lib/github";
+import { env } from "cloudflare:workers";
 
-const { contributions} = await getGithubStats();
+const kv = (env as any).SESSION;
+const { contributions } = await getGithubStats(kv);
+const AUDIO_BASE = import.meta.env.AUDIO_BASE_URL;
+const audioSrc = AUDIO_BASE ? `${AUDIO_BASE}/about.mp3` : null;
+const audioImage = AUDIO_BASE ? `${AUDIO_BASE}/about.jpg` : null;
 ---
 
 <Layout title="about">
   <div>
-    <h1 class="mb-4">about</h1>
+    <div class="flex justify-between">
+      <h1 class="mb-4">about</h1>
+      {
+        audioSrc && audioImage && (
+          <AudioPlayer
+            title="about"
+            src={audioSrc}
+            image={audioImage}
+            class="md:hidden"
+          />
+        )
+      }
+    </div>
+
     <p>
-  I'm a software engineer who likes to help.
-  I build with Astro, TypeScript, React, and MDX, and contribute
-  to open source — including a merged PR to the official Astro docs —
-  with <strong>{contributions}</strong> contributions on GitHub.
-</p>
- <p>This site is one of those projects. Built with Astro, obviously.</p>
-<p >
-  Outside of code I'm learning French and German. Slowly, but consistently — 
-  which is also how I approach everything else.
-</p>
-<p>
-  I want to work on something that matters.
-</p>
+      I'm a software engineer who likes to help. I build with Astro, TypeScript,
+      React, and MDX, and contribute to open source — with <strong
+        >{contributions}</strong
+      > contributions on <strong>GitHub</strong>.
+    </p>
+    <p>This site is one of those projects. Built with Astro, obviously.</p>
+    <p>
+      Outside of code I'm learning <strong>French</strong> and <strong
+        >German</strong
+      >. Slowly, but consistently — which is also how I approach everything
+      else.
+    </p>
+    <p>I want to work on something that matters.</p>
   </div>
 </Layout>

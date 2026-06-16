@@ -1,7 +1,8 @@
 ---
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import '../styles/global.css';
+import ClientRouter from "astro/components/ClientRouter.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import "../styles/global.css";
 
 interface Props {
   title: string;
@@ -17,18 +18,194 @@ const { title } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title === 'home' ? 'atelier' : `atelier - ${title}`}</title>
-	  <script is:inline>
-  const theme = localStorage.getItem('theme') ?? 
-    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  document.documentElement.classList.toggle('dark', theme === 'dark');
-</script>
+    <title>{title === "home" ? "atelier" : `atelier - ${title}`}</title>
+    <script is:inline>
+      const theme =
+        localStorage.getItem("theme") ??
+        (window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light");
+      document.documentElement.classList.toggle("dark", theme === "dark");
+    </script>
+    <ClientRouter />
   </head>
- <body class="h-screen flex flex-col">
-	<Header />
-	<main class="flex-1 layout-container flex flex-col overflow-y-auto mt-10">
-    <slot />
-	</main>
-	<Footer />
+  <body class="h-screen flex flex-col">
+    <Header />
+    <main class="flex-1 layout-container flex flex-col overflow-y-auto mt-10">
+      <slot />
+    </main>
+    <Footer />
+
+    <div
+      id="global-player"
+      transition:persist
+      class="layout-container flex items-center gap-3 px-4 py-0 relative overflow-hidden max-h-0 transition-all duration-300 ease-in-out max-h-0"
+    >
+      <div
+        id="player-bg"
+        class="absolute inset-0"
+        style="background-size: cover; background-position: center; filter: brightness(0.35);"
+      >
+      </div>
+      <div class="absolute inset-0 bg-black/40"></div>
+
+      <audio id="global-audio" preload="none"></audio>
+
+      <svg
+        id="play-svg"
+        width="36"
+        height="36"
+        viewBox="0 0 36 36"
+        class="relative cursor-pointer shrink-0 rounded-full hover:bg-white/10 transition-colors p-1"
+      >
+        <circle
+          id="ring"
+          cx="18"
+          cy="18"
+          r="15"
+          fill="none"
+          stroke="white"
+          stroke-width="2"
+          stroke-dasharray="0 94.2"
+          stroke-linecap="round"
+          transform="rotate(-90 18 18)"
+          stroke-opacity="0.8"></circle>
+        <polygon id="pi" points="15,12 15,24 25,18" fill="white"></polygon>
+        <g id="pa" style="display:none">
+          <rect x="12" y="12" width="4" height="12" rx="1.2" fill="white"
+          ></rect>
+          <rect x="20" y="12" width="4" height="12" rx="1.2" fill="white"
+          ></rect>
+        </g>
+      </svg>
+
+      <div class="relative flex flex-col flex-1 min-w-0">
+        <span id="player-title" class="text-sm font-medium truncate text-white"
+        ></span>
+        <span id="player-time" class="text-xs text-white/60"></span>
+      </div>
+
+      <button
+        id="speed-btn"
+        class="relative text-xs px-2 py-1 rounded text-white min-w-[40px] text-center"
+        >1×</button
+      >
+
+      <button
+        id="close-player"
+        aria-label="Close"
+        class="relative text-white/60 hover:text-white hover:bg-white/10 transition-colors p-2 rounded-full"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <line
+            x1="4"
+            y1="4"
+            x2="12"
+            y2="12"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"></line>
+          <line
+            x1="12"
+            y1="4"
+            x2="4"
+            y2="12"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"></line>
+        </svg>
+      </button>
+    </div>
+
+    <script>
+      const audio = document.getElementById("global-audio") as HTMLAudioElement;
+      const bar = document.getElementById("global-player")!;
+      const ring = document.getElementById("ring")!;
+      const pi = document.getElementById("pi")!;
+      const pa = document.getElementById("pa") as HTMLElement;
+      const titleEl = document.getElementById("player-title")!;
+      const timeEl = document.getElementById("player-time")!;
+      const bg = document.getElementById("player-bg") as HTMLElement;
+      const speedBtn = document.getElementById("speed-btn")!;
+
+      const speeds = [1, 1.25, 1.5, 2];
+      const speedLabels = ["1×", "1.25×", "1.5×", "2×"];
+      let speedIndex = 0;
+
+      speedBtn.addEventListener("click", () => {
+        speedIndex = (speedIndex + 1) % speeds.length;
+        audio.playbackRate = speeds[speedIndex];
+        speedBtn.textContent = speedLabels[speedIndex];
+      });
+
+      function fmt(s: number) {
+        if (isNaN(s)) return "-0:00";
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60);
+        return `-${m}:${String(sec).padStart(2, "0")}`;
+      }
+
+      window.addEventListener("play-audio", (e: any) => {
+        const { src, title, image } = e.detail;
+
+        audio.src = src;
+        titleEl.textContent = title;
+        timeEl.textContent = "-0:00";
+        speedIndex = 0;
+        speedBtn.textContent = "1×";
+        audio.playbackRate = 1;
+
+        if (image) {
+          bg.style.backgroundImage = `url('${image}')`;
+        } else {
+          bg.style.backgroundImage = "none";
+        }
+
+        bar.classList.remove("max-h-0", "py-0");
+        bar.classList.add("max-h-[100px]", "py-2");
+        audio.play();
+
+        document
+          .querySelectorAll(".listen-btn")
+          .forEach((b) => b.classList.remove("is-playing"));
+        document
+          .querySelector(`.listen-btn[data-src="${src}"]`)
+          ?.classList.add("is-playing");
+      });
+
+      document.getElementById("play-svg")!.addEventListener("click", () => {
+        audio.paused ? audio.play() : audio.pause();
+      });
+
+      audio.addEventListener("play", () => {
+        pi.style.display = "none";
+        pa.style.display = "block";
+      });
+      audio.addEventListener("pause", () => {
+        pi.style.display = "";
+        pa.style.display = "none";
+      });
+
+      audio.addEventListener("timeupdate", () => {
+        const remaining = audio.duration - audio.currentTime;
+        timeEl.textContent = fmt(remaining);
+        const pct = audio.currentTime / audio.duration;
+        if (!isNaN(pct)) {
+          ring.setAttribute(
+            "stroke-dasharray",
+            `${(pct * 94.2).toFixed(2)} 94.2`,
+          );
+        }
+      });
+
+      document.getElementById("close-player")!.addEventListener("click", () => {
+        audio.pause();
+        bar.classList.remove("max-h-[100px]", "py-2");
+        bar.classList.add("max-h-0", "py-0");
+        document
+          .querySelectorAll(".listen-btn")
+          .forEach((b) => b.classList.remove("is-playing"));
+      });
+    </script>
   </body>
 </html>
