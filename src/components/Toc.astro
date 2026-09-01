@@ -1,0 +1,202 @@
+---
+import type { TocItem } from "../lib/toc";
+
+interface Props {
+  headings: TocItem[];
+  class?: string;
+}
+
+const { headings, class: className } = Astro.props;
+---
+
+{
+  headings.length > 0 && (
+    <nav
+      class:list={[
+        "toc sticky top-8 flex max-h-[calc(100vh-4rem)] overflow-y-auto",
+        className,
+      ]}
+      aria-label="Table of contents"
+    >
+      <div class="toc-track relative w-6 shrink-0">
+        <svg
+          class="toc-svg-bg absolute top-0 left-0 overflow-visible [&_path]:fill-none [&_path]:stroke-[1.5] [&_path]:stroke-neutral-500 dark:[&_path]:stroke-neutral-400 [&_path]:opacity-35"
+          aria-hidden="true"
+        />
+        <div class="toc-clip absolute top-0 left-0 overflow-hidden transition-[clip-path] duration-200 ease-out">
+          <svg
+            class="toc-svg-active absolute top-0 left-0 overflow-visible [&_path]:fill-none [&_path]:stroke-[1.5] [&_path]:stroke-purple-500"
+            aria-hidden="true"
+          />
+        </div>
+      </div>
+      <ul class="toc-list m-0 flex list-none flex-col gap-2 p-0">
+        {headings.map((h) => (
+          <li
+            class={`toc-item ${h.depth === 3 ? "pl-4" : ""}`}
+            data-slug={h.slug}
+            data-depth={h.depth}
+          >
+            <a
+              href={`#${h.slug}`}
+              class="block whitespace-nowrap text-[1.2rem] opacity-55 transition-[opacity,color] duration-150 [.toc-item.active_&]:opacity-100 [.toc-item.active_&]:text-purple-500"
+            >
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<script>
+  const READING_LINE = 120; // px from top of viewport
+  const ROW_SPAN = 12; // half-height of the highlighted band around the active point
+
+  function initToc() {
+    const nav = document.querySelector<HTMLElement>(".toc");
+    if (!nav) return;
+
+    const track = nav.querySelector<HTMLElement>(".toc-track")!;
+    const bgSvg = nav.querySelector<SVGSVGElement>(".toc-svg-bg")!;
+    const activeSvg = nav.querySelector<SVGSVGElement>(".toc-svg-active")!;
+    const clip = nav.querySelector<HTMLElement>(".toc-clip")!;
+    const items = Array.from(nav.querySelectorAll<HTMLElement>(".toc-item"));
+    const article = document.querySelector<HTMLElement>("#post-content");
+    if (!article) return;
+    const articleEl = article;
+
+    // pair items with their heading elements, keeping indices in lockstep
+    const pairs = items
+      .map((item, i) => {
+        const el = article.querySelector<HTMLElement>(`#${item.dataset.slug}`);
+        return el ? { item, el, index: i } : null;
+      })
+      .filter(
+        (p): p is { item: HTMLElement; el: HTMLElement; index: number } => !!p,
+      );
+
+    function xForItem(item: HTMLElement) {
+      return 8;
+    }
+
+    let points: { x: number; y: number }[] = [];
+
+    function layout() {
+      const trackHeight = track.clientHeight;
+      points = items.map((item) => ({
+        x: xForItem(item),
+        y: item.offsetTop + item.offsetHeight / 2,
+      }));
+
+      if (points.length === 0) return;
+
+      let d = `M ${points[0].x} ${points[0].y}`;
+      for (let i = 1; i < points.length; i++) {
+        d += ` L ${points[i].x} ${points[i].y}`;
+      }
+
+      const width = 24;
+      for (const svg of [bgSvg, activeSvg]) {
+        svg.setAttribute("viewBox", `0 0 ${width} ${trackHeight}`);
+        svg.setAttribute("width", String(width));
+        svg.setAttribute("height", String(trackHeight));
+        svg.innerHTML = `<path d="${d}" />`;
+      }
+      clip.style.width = `${width}px`;
+      clip.style.height = `${trackHeight}px`;
+    }
+    interface Section {
+      startIndex: number;
+      endIndex: number;
+    }
+
+    const sections: Section[] = [];
+    items.forEach((item, i) => {
+      const depth = Number(item.dataset.depth);
+      if (depth === 2) {
+        sections.push({ startIndex: i, endIndex: i });
+      } else if (sections.length > 0) {
+        sections[sections.length - 1].endIndex = i;
+      }
+    });
+
+    function sectionFor(index: number): Section | null {
+      return (
+        sections.find((s) => index >= s.startIndex && index <= s.endIndex) ??
+        null
+      );
+    }
+
+    const elByIndex = new Map(pairs.map((p) => [p.index, p.el]));
+
+    function checkVisibleSections() {
+      const trackHeight = track.clientHeight;
+      let activeStart = -1;
+      for (const { el, index } of pairs) {
+        if (el.getBoundingClientRect().top <= READING_LINE) {
+          activeStart = index;
+        } else {
+          break;
+        }
+      }
+
+      const scrolledToBottom =
+        window.scrollY + window.innerHeight >=
+        document.documentElement.scrollHeight - 2;
+      if (scrolledToBottom && pairs.length > 0) {
+        activeStart = pairs[pairs.length - 1].index;
+      }
+
+      items.forEach((item, i) =>
+        item.classList.toggle("active", i === activeStart),
+      );
+
+      const section = activeStart === -1 ? null : sectionFor(activeStart);
+      if (!section || points.length === 0) {
+        clip.style.clipPath = "inset(0 0 100% 0)";
+        return;
+      }
+
+      const startEl = elByIndex.get(section.startIndex)!;
+      const nextSection = sections.find((s) => s.startIndex > section.endIndex);
+      const endY = nextSection
+        ? elByIndex.get(nextSection.startIndex)!.offsetTop
+        : articleEl.offsetTop + articleEl.offsetHeight;
+
+      const startY = startEl.offsetTop;
+      const currentDocY = window.scrollY + READING_LINE;
+      const progress = Math.min(
+        1,
+        Math.max(0, (currentDocY - startY) / (endY - startY)),
+      );
+
+      const tocStartY = points[section.startIndex].y;
+      const tocEndY = points[section.endIndex].y;
+
+      if (section.startIndex === section.endIndex) {
+        // lone heading, no children to show progress through — just light up a small band.
+        const y = tocStartY;
+        clip.style.clipPath = `inset(${y - ROW_SPAN}px 0 ${Math.max(0, trackHeight - y - ROW_SPAN)}px 0)`;
+        return;
+      }
+
+      const fillY = tocStartY + progress * (tocEndY - tocStartY);
+      clip.style.clipPath = `inset(${tocStartY}px 0 ${Math.max(0, trackHeight - fillY)}px 0)`;
+
+      clip.style.clipPath = `inset(${tocStartY}px 0 ${Math.max(0, trackHeight - fillY)}px 0)`;
+    }
+
+    layout();
+    checkVisibleSections();
+
+    window.addEventListener("scroll", checkVisibleSections, { passive: true });
+    window.addEventListener("resize", () => {
+      layout();
+      checkVisibleSections();
+    });
+  }
+
+  document.addEventListener("astro:page-load", initToc);
+</script>

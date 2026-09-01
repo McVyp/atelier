@@ -2,12 +2,15 @@
 import Layout from "../layouts/Layout.astro";
 import Card from "../components/Card.astro";
 import { getGithubActivity } from "../lib/github";
-import { posts } from "../lib/data";
+import { getBlogPosts } from "../lib/notion"; // swap this in
 import { env } from "cloudflare:workers";
 import Link from "../components/Link.astro";
 
 const kv = (env as any).SESSION;
-const activityCards = await getGithubActivity(kv);
+const [posts, activityCards] = await Promise.all([
+  getBlogPosts(kv),
+  getGithubActivity(kv),
+]);
 
 const feed = [...posts, ...activityCards]
   .filter((item) => !!item.date)
@@ -17,7 +20,7 @@ const feed = [...posts, ...activityCards]
 <Layout title="home">
   <h1 class="mb-4">atelier</h1>
   <p>
-    hey, I'm mcVyp. <strong>software engineer</strong> who likes to help. I build
+    hey, I'm McVyp. <strong>software engineer</strong> who likes to help. I build
     for fun and contribute to open source when I can.
   </p>
   <p>

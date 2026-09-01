@@ -1,20 +1,26 @@
 ---
+import { env } from "cloudflare:workers";
 import Card from "../../components/Card.astro";
 import Layout from "../../layouts/Layout.astro";
-import { posts } from "../../lib/data";
+import { getBlogPosts } from "../../lib/notion";
 
+const kv = (env as any).SESSION;
+const posts = await getBlogPosts(kv);
 ---
 
 <Layout title="blog">
   <h1 class="mb-4">blog</h1>
   <div>
-    {posts.map(post => (
-      <Card 
-        title={post.title}
-        description={post.description}
-        date={post.date}
-        slug={post.slug}
-      />
-    ))}
+    {
+      posts.map((post) => (
+        <Card
+          title={post.title}
+          description={post.description}
+          date={post.date}
+          slug={post.slug}
+          type="post"
+        />
+      ))
+    }
   </div>
 </Layout>

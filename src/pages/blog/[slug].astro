@@ -1,16 +1,20 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { posts } from '../../lib/data';
+import { env } from "cloudflare:workers";
+import BlogPostLayout from "../../layouts/BlogPostLayout.astro";
+import { getBlogPosts, getBlogPostMarkdown } from "../../lib/notion";
+import { renderWithToc } from "../../lib/toc";
 
 const { slug } = Astro.params;
+const kv = (env as any).SESSION;
+const posts = await getBlogPosts(kv);
+const post = posts.find((p) => p.slug === slug);
 
-const post = posts.find(p => p.slug === slug);
+if (!post) return Astro.redirect("/blog");
 
-if (!post) return Astro.redirect('/blog');
+const markdown = await getBlogPostMarkdown(post.id, kv);
+const { html, headings } = renderWithToc(markdown);
 ---
 
-<Layout title={post.title}>
-  <h1>{post.title}</h1>
-  <span>{post.date}</span>
-  <p>{post.description}</p>
-</Layout>
+<BlogPostLayout title={post.title} headings={headings}>
+  <div set:html={html} />
+</BlogPostLayout>

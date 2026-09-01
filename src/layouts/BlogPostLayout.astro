@@ -1,0 +1,25 @@
+---
+import Layout from "./Layout.astro";
+import Toc from "../components/Toc.astro";
+import type { TocItem } from "../lib/toc";
+
+interface Props {
+  title: string;
+  headings: TocItem[];
+}
+
+const { title, headings } = Astro.props;
+---
+
+<Layout title={title}>
+  <div
+    class="grid grid-cols-1 min-[90rem]:grid-cols-[1fr_20rem] gap-12 items-start"
+  >
+    <article id="post-content">
+      <div class="post-body">
+        <slot />
+      </div>
+    </article>
+    <Toc headings={headings} class="hidden min-[90rem]:flex" />
+  </div>
+</Layout>
