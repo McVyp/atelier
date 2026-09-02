@@ -4,7 +4,7 @@ a personal space — journal, work, and things in between.
 [![Built with Astro](https://astro.badg.es/v2/built-with-astro/small.svg)](https://astro.build)
 
 ![CI](https://github.com/McVyp/atelier/actions/workflows/ci.yml/badge.svg)
-
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ## Tech Stack
 
 - Astro (SSR via @astrojs/cloudflare) - pages and routing
