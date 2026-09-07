@@ -16,6 +16,7 @@ const audioImage = AUDIO_BASE ? `${AUDIO_BASE}/about.jpg` : null;
     <div class="flex justify-between">
       <h1 class="mb-4">about</h1>
       {
+        /* adding audio later{
         audioSrc && audioImage && (
           <AudioPlayer
             title="about"
@@ -25,6 +26,8 @@ const audioImage = AUDIO_BASE ? `${AUDIO_BASE}/about.jpg` : null;
           />
         )
       }
+      */
+      }
     </div>
 
     <p>
@@ -33,13 +36,7 @@ const audioImage = AUDIO_BASE ? `${AUDIO_BASE}/about.jpg` : null;
         >{contributions}</strong
       > contributions on <strong>GitHub</strong>.
     </p>
-    <p>This site is one of those projects. Built with Astro, obviously.</p>
-    <p>
-      Outside of code I'm learning <strong>French</strong> and <strong
-        >German</strong
-      >. Slowly, but consistently — which is also how I approach everything
-      else.
-    </p>
+    <p>I try to build things carefully - slowly, but consistently.</p>
     <p>I want to work on something that matters.</p>
   </div>
 </Layout>

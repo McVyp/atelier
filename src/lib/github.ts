@@ -36,7 +36,8 @@ export async function getGithubActivity(kv?: KVNamespace) {
       href: `https://github.com/${e.repo.name}`,
       type: "activity" as const,
     }))
-    .filter((item: any) => item.description?.trim());
+    .filter((item: any) => item.description?.trim())
+    .slice(0, 3);
 
   if (kv)
     await kv.put(cacheKey, JSON.stringify(result), { expirationTtl: 3600 });
