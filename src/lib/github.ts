@@ -22,8 +22,9 @@ export async function getGithubActivity(kv?: KVNamespace) {
     .map((e: any) => ({
       title: e.repo.name,
       description:
-        e.type === "PushEvent"
-          ? e.payload.commits?.[0]?.message
+        e.type === "PushEvent" && !e.payload.ref?.includes("dependabot/")
+          ? (e.payload.commits?.[0]?.message ??
+            `Pushed to ${e.payload.ref?.replace("refs/heads/", "")}`)
           : e.type === "PullRequestEvent"
             ? e.payload.pull_request?.title
             : e.type === "CreateEvent"
