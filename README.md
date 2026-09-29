@@ -38,3 +38,15 @@ cp .env.example .env # fill in your values
 pnpm install
 pnpm dev
 ```
+
+## Infrastructure (optional)
+
+The KV cache is the `SESSION` binding that `@astrojs/cloudflare` adds by default.
+
+```bash
+cd infra
+cp terraform.tfvars.example terraform.tfvars
+export CLOUDFLARE_API_TOKEN=... # workers KV storage: edit
+terraform init
+terraform apply
+```

@@ -1,0 +1,3 @@
+account_id      = "" # npx wrangler whoami
+kv_namespace_id = "" # npx wrangler kv namespace list -> id
+kv_title        = "" # same list -> title
