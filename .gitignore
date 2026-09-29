@@ -27,6 +27,12 @@ pnpm-debug.log*
 # Cloudflare
 .wrangler/
 
+# Terraform
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.*
+infra/terraform.tfvars
+
 # Editor
 .vscode/*
 !.vscode/extensions.json
